@@ -74,13 +74,15 @@ class _MealCardWidgetState extends State<MealCardWidget>
   }
 
   Future<void> _reserveMeal() async {
+    if (widget.mealRef == null) return;
+
     // Webhook destination for meal reservations
     final url = Uri.parse(
         'https://hooks.uncover.city/webhook/714bb0e9-d96a-455b-aad4-8bce8f5a9258');
 
     // Data payload mapping
     final payload = {
-      'meal_name': widget.mealRef?.mealName ?? 'Unknown Meal',
+      'meal_name': widget.mealRef!.mealName,
       'user_id': currentUserUid,
       'timestamp': DateTime.now().toIso8601String(),
     };
@@ -102,6 +104,8 @@ class _MealCardWidgetState extends State<MealCardWidget>
             ),
           );
         }
+      } else {
+        debugPrint('Webhook error: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error reserving meal: $e');
