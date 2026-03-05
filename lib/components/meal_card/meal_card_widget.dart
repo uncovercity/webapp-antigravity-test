@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
@@ -69,6 +71,41 @@ class _MealCardWidgetState extends State<MealCardWidget>
     _model.maybeDispose();
 
     super.dispose();
+  }
+
+  Future<void> _reserveMeal() async {
+    // Webhook destination for meal reservations
+    final url = Uri.parse(
+        'https://hooks.uncover.city/webhook/714bb0e9-d96a-455b-aad4-8bce8f5a9258');
+
+    // Data payload mapping
+    final payload = {
+      'meal_name': widget.mealRef?.mealName ?? 'Unknown Meal',
+      'user_id': currentUserUid,
+      'timestamp': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          // Success feedback
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Solicitud enviada'),
+              backgroundColor: FlutterFlowTheme.of(context).success,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error reserving meal: $e');
+    }
   }
 
   @override
@@ -303,28 +340,26 @@ class _MealCardWidgetState extends State<MealCardWidget>
                     children: [
                       Align(
                         alignment: AlignmentDirectional(0.0, 0.0),
-                        child: AuthUserStreamWidget(
-                          builder: (context) => Text(
-                            valueOrDefault(currentUserDocument?.diet, ''),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  fontSize: 10.0,
-                                  letterSpacing: 0.0,
+                        child: Text(
+                          valueOrDefault(widget!.mealRef!.mealDiet.first, ''),
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                                font: GoogleFonts.inter(
                                   fontWeight: FontWeight.w500,
                                   fontStyle: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .fontStyle,
-                                  lineHeight: 1.0,
                                 ),
-                          ),
+                                color: FlutterFlowTheme.of(context).primary,
+                                fontSize: 10.0,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w500,
+                                fontStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .fontStyle,
+                                lineHeight: 1.0,
+                              ),
                         ),
                       ),
                     ],
@@ -332,6 +367,31 @@ class _MealCardWidgetState extends State<MealCardWidget>
                 ),
               ),
             ),
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
+            child: FFButtonWidget(
+              onPressed: () async {
+                await _reserveMeal();
+              },
+              text: 'Reservar Plato',
+              options: FFButtonOptions(
+                width: double.infinity,
+                height: 36.0,
+                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                color: FlutterFlowTheme.of(context).primary,
+                textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                      font: GoogleFonts.inter(
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      color: Colors.white,
+                    ),
+                elevation: 2.0,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+          ),
         ],
       ),
     );

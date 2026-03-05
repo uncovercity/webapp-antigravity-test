@@ -162,7 +162,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 10.0,
                             mainAxisSpacing: 10.0,
-                            childAspectRatio: 0.78,
+                            childAspectRatio: 0.58,
                           ),
                           scrollDirection: Axis.vertical,
                           itemCount: gridViewMealsRecordList.length,
